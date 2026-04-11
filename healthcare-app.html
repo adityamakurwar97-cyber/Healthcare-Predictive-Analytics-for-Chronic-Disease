@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MediPredict AI — Healthcare Disease Prediction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B2A4A;--blue:#1565C0;--sky:#1E88E5;--teal:#00796B;--teal-l:#E0F2F1;
+  --green:#2E7D32;--green-l:#E8F5E9;--red:#C62828;--red-l:#FFEBEE;
+  --amber:#F57F17;--amber-l:#FFFDE7;--bg:#F5F7FA;--white:#FFFFFF;
+  --border:#DDE3EE;--text:#1A2B3C;--muted:#5A6B7C;--light:#EBF0F7;
+  --sh-sm:0 1px 3px rgba(11,42,74,.08);--sh-md:0 4px 16px rgba(11,42,74,.10);
+  --sh-lg:0 8px 32px rgba(11,42,74,.14);
+  --r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:24px;
+  font-family:'DM Sans',system-ui,sans-serif
+}
+body{background:var(--bg);color:var(--text);line-height:1.6}
+.page{display:none;animation:fadeUp .3s ease both}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:var(--navy);padding:0 2rem;
+  display:flex;align-items:center;gap:1.5rem;height:64px;box-shadow:var(--sh-md)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-family:'DM Serif Display',serif;
+  font-size:1.2rem;color:#fff;cursor:pointer;white-space:nowrap;text-decoration:none}
+.nav-brand-icon{width:36px;height:36px;background:var(--sky);border-radius:8px;
+  display:flex;align-items:center;justify-content:center}
+.nav-links{display:flex;gap:.25rem;flex:1;flex-wrap:wrap}
+.nav-link{padding:6px 13px;border-radius:var(--r-sm);color:rgba(255,255,255,.72);
+  font-size:.875rem;cursor:pointer;border:none;background:none;transition:all .15s;
+  font-family:inherit;white-space:nowrap}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.1)}
+.nav-link.active{color:#fff;background:rgba(255,255,255,.15);font-weight:500}
+.nav-cta{margin-left:auto;padding:8px 18px;border-radius:var(--r-sm);
+  background:var(--sky);color:#fff;font-size:.875rem;font-weight:500;
+  cursor:pointer;border:none;white-space:nowrap;font-family:inherit;transition:opacity .15s}
+.nav-cta:hover{opacity:.88}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--navy) 0%,#0D3F6C 50%,#0F5188 100%);
+  color:#fff;padding:80px 2rem;display:flex;align-items:center;justify-content:center;
+  min-height:540px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
+.hero-content{max-width:680px;text-align:center;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:100px;padding:6px 16px;font-size:.8125rem;color:rgba(255,255,255,.9);margin-bottom:24px}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#4ADE80}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(2rem,5vw,3.25rem);
+  line-height:1.15;margin-bottom:20px}
+.hero h1 em{font-style:italic;color:#93C5FD}
+.hero p{font-size:1.0625rem;color:rgba(255,255,255,.78);max-width:500px;margin:0 auto 36px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-primary{padding:12px 28px;border-radius:var(--r-md);background:var(--sky);
+  color:#fff;font-weight:500;font-size:.9375rem;border:none;cursor:pointer;
+  transition:all .15s;font-family:inherit}
+.btn-primary:hover{background:#1976D2;transform:translateY(-1px)}
+.btn-outline{padding:12px 28px;border-radius:var(--r-md);background:transparent;
+  color:#fff;border:1px solid rgba(255,255,255,.35);font-weight:400;font-size:.9375rem;
+  cursor:pointer;transition:all .15s;font-family:inherit}
+.btn-outline:hover{background:rgba(255,255,255,.1)}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:56px;
+  border-top:1px solid rgba(255,255,255,.12);padding-top:40px;flex-wrap:wrap}
+.hero-stat h3{font-family:'DM Serif Display',serif;font-size:2rem;color:#fff}
+.hero-stat p{font-size:.8125rem;color:rgba(255,255,255,.6)}
+
+/* SECTION */
+.section{padding:72px 2rem;max-width:1100px;margin:0 auto}
+.section-title{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--navy);margin-bottom:8px}
+.section-sub{color:var(--muted);font-size:.9375rem;margin-bottom:48px}
+.divider{border:none;border-top:1px solid var(--border)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1.5rem;box-shadow:var(--sh-sm)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.service-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:24px;transition:all .2s;box-shadow:var(--sh-sm)}
+.service-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md);border-color:var(--sky)}
+.service-icon{width:48px;height:48px;border-radius:var(--r-md);display:flex;
+  align-items:center;justify-content:center;margin-bottom:16px;font-size:1.375rem}
+.service-card h3{font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:8px}
+.service-card p{font-size:.875rem;color:var(--muted);line-height:1.65}
+
+/* FORM */
+.form-page{max-width:860px;margin:0 auto;padding:48px 2rem}
+.page-title{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--navy);margin-bottom:6px}
+.form-section-header{display:flex;align-items:center;gap:10px;font-size:.875rem;
+  font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;
+  margin:32px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.form-section-dot{width:8px;height:8px;border-radius:50%;background:var(--sky);flex-shrink:0}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:.8125rem;font-weight:500;color:var(--text)}
+.form-label .req{color:var(--red);margin-left:2px}
+.form-input,.form-select,.form-textarea{padding:10px 14px;border-radius:var(--r-sm);
+  border:1.5px solid var(--border);background:var(--white);font-size:.9rem;
+  color:var(--text);font-family:inherit;transition:border-color .15s,box-shadow .15s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;
+  border-color:var(--sky);box-shadow:0 0 0 3px rgba(30,136,229,.12)}
+.form-input.error,.form-select.error{border-color:var(--red)}
+.form-error{font-size:.75rem;color:var(--red);margin-top:2px}
+.form-hint{font-size:.75rem;color:var(--muted)}
+.form-textarea{resize:vertical;min-height:90px}
+.bmi-display{padding:10px 14px;border-radius:var(--r-sm);background:var(--light);
+  border:1.5px solid var(--border);font-size:.9rem;font-weight:600;color:var(--navy);
+  display:flex;align-items:center;gap:8px;min-height:42px}
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:.75rem;font-weight:500}
+.badge-blue{background:#DBEAFE;color:#1565C0}
+.badge-green{background:var(--green-l);color:var(--green)}
+.badge-red{background:var(--red-l);color:var(--red)}
+.badge-amber{background:var(--amber-l);color:var(--amber)}
+.symptoms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.symptom-chip{padding:8px 12px;border-radius:var(--r-sm);border:1.5px solid var(--border);
+  background:var(--white);font-size:.8125rem;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;gap:6px;user-select:none;font-family:inherit}
+.symptom-chip.selected{border-color:var(--sky);background:#EBF5FF;color:var(--blue);font-weight:500}
+.submit-btn{width:100%;padding:14px;border-radius:var(--r-md);background:var(--navy);
+  color:#fff;font-size:1rem;font-weight:600;border:none;cursor:pointer;transition:all .2s;
+  margin-top:32px;font-family:inherit;display:flex;align-items:center;
+  justify-content:center;gap:10px}
+.submit-btn:hover{background:var(--blue);transform:translateY(-1px);box-shadow:var(--sh-md)}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+/* RESULT */
+.result-page{max-width:860px;margin:0 auto;padding:48px 2rem}
+.result-header-card{background:var(--navy);color:#fff;border-radius:var(--r-xl);
+  padding:32px;display:flex;align-items:flex-start;justify-content:space-between;
+  gap:20px;margin-bottom:24px;flex-wrap:wrap}
+.risk-badge{padding:8px 20px;border-radius:100px;font-weight:600;font-size:.875rem;letter-spacing:.04em}
+.risk-low{background:var(--green-l);color:var(--green)}
+.risk-medium{background:var(--amber-l);color:var(--amber)}
+.risk-high{background:var(--red-l);color:var(--red)}
+.conf-bar-wrap{background:rgba(255,255,255,.15);border-radius:100px;height:8px;width:120px}
+.conf-bar{height:8px;border-radius:100px;background:#4ADE80;transition:width .8s ease}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.result-section-title{font-size:.8125rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--sky);margin-bottom:12px}
+.precaution-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.precaution-item{display:flex;align-items:flex-start;gap:10px;font-size:.875rem;color:var(--text)}
+.precaution-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);margin-top:7px;flex-shrink:0}
+
+/* DASHBOARD */
+.dash-page{max-width:1100px;margin:0 auto;padding:48px 2rem}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:20px;box-shadow:var(--sh-sm)}
+.kpi-label{font-size:.75rem;color:var(--muted);font-weight:500;text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:8px}
+.kpi-val{font-size:1.875rem;font-weight:600;color:var(--navy)}
+.kpi-sub{font-size:.75rem;color:var(--muted);margin-top:4px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:24px;box-shadow:var(--sh-sm)}
+.chart-title{font-size:.9375rem;font-weight:600;color:var(--navy);margin-bottom:4px}
+.chart-sub{font-size:.8125rem;color:var(--muted);margin-bottom:20px}
+.insight-list{display:flex;flex-direction:column;gap:12px}
+.insight-item{display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-radius:var(--r-md);font-size:.875rem;font-weight:500}
+.insight-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* RECORDS TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--border)}
+.data-table{width:100%;border-collapse:collapse;font-size:.875rem}
+.data-table th{padding:11px 16px;text-align:left;font-weight:600;font-size:.8rem;
+  background:var(--light);color:var(--navy);border-bottom:1px solid var(--border);
+  text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.data-table td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--light)}
+.table-btn{padding:4px 12px;border-radius:var(--r-sm);background:var(--light);
+  color:var(--navy);font-size:.8rem;border:1px solid var(--border);cursor:pointer;
+  transition:background .15s;font-family:inherit}
+.table-btn:hover{background:#D3E3F7}
+
+/* REPORT */
+.report-page{max-width:800px;margin:0 auto;padding:32px 2rem}
+.report-actions{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+.report-doc{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:48px;box-shadow:var(--sh-md)}
+.report-header{display:flex;justify-content:space-between;align-items:flex-start;
+  padding-bottom:24px;border-bottom:2px solid var(--navy);margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.report-logo{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--navy)}
+.report-meta{text-align:right;font-size:.8125rem;color:var(--muted)}
+.report-section{margin-bottom:28px}
+.report-section-title{font-size:.75rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--sky);padding-bottom:8px;
+  border-bottom:1px solid var(--border);margin-bottom:14px}
+.report-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+.report-field-label{font-size:.8125rem;color:var(--muted);font-weight:500;margin-bottom:2px}
+.report-field-val{font-size:.875rem;color:var(--text)}
+.report-result-box{background:var(--navy);color:#fff;border-radius:var(--r-md);
+  padding:20px 24px;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px}
+.report-footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);
+  font-size:.75rem;color:var(--muted);text-align:center;line-height:1.8}
+
+/* FOOTER */
+.footer{background:var(--navy);color:rgba(255,255,255,.7);padding:48px 2rem 24px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;
+  max-width:1100px;margin:0 auto 40px;flex-wrap:wrap}
+.footer-col h4{color:#fff;font-size:.9375rem;font-weight:600;margin-bottom:16px}
+.footer-col p,.footer-col a{font-size:.875rem;line-height:2;display:block;
+  color:rgba(255,255,255,.65);text-decoration:none}
+.footer-col a:hover{color:#fff}
+.footer-bottom{max-width:1100px;margin:0 auto;padding-top:24px;
+  border-top:1px solid rgba(255,255,255,.1);display:flex;
+  justify-content:space-between;align-items:center;
+  font-size:.8125rem;color:rgba(255,255,255,.45);flex-wrap:wrap;gap:8px}
+
+/* UTILS */
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted)}
+.empty-icon{font-size:3rem;margin-bottom:16px;opacity:.5}
+.back-link{background:none;border:none;cursor:pointer;color:var(--sky);
+  font-size:.875rem;padding:0;display:inline-flex;align-items:center;gap:6px;
+  font-family:inherit;margin-bottom:24px}
+.search-input{padding:10px 14px;border-radius:var(--r-sm);border:1.5px solid var(--border);
+  background:var(--white);font-size:.875rem;color:var(--text);font-family:inherit;width:260px}
+.search-input:focus{outline:none;border-color:var(--sky);box-shadow:0 0 0 3px rgba(30,136,229,.12)}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(11,42,74,.55);
+  display:none;align-items:center;justify-content:center;z-index:999}
+.loading-overlay.show{display:flex}
+.loading-box{background:var(--white);border-radius:var(--r-xl);padding:40px 48px;
+  text-align:center;box-shadow:var(--sh-lg)}
+.pulse-ring{width:60px;height:60px;border-radius:50%;border:3px solid var(--sky);
+  margin:0 auto 20px;animation:pulseRing 1.2s ease-in-out infinite}
+@keyframes pulseRing{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.5}}
+.spinner{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  .form-row,.form-row-3,.result-grid,.chart-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .nav-links{display:none}
+  .report-row{grid-template-columns:1fr}
+  .hero-stats{gap:24px}
+}
+@media print{
+  .nav,.report-actions,.footer{display:none!important}
+  body{background:white}
+  .report-doc{box-shadow:none;border:none;padding:0}
+  .report-page{padding:0}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="pulse-ring"></div>
+    <p style="font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:8px">Analyzing Patient Data</p>
+    <p style="font-size:.875rem;color:var(--muted)">AI model processing vitals and symptoms...</p>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-brand" onclick="showPage('home')">
+    <div class="nav-brand-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M9 4h2v5h5v2h-5v5H9v-5H4V9h5V4z" fill="white"/>
+      </svg>
+    </div>
+    MediPredict AI
+  </a>
+  <div class="nav-links">
+    <button class="nav-link active" id="nav-home" onclick="showPage('home')">Home</button>
+    <button class="nav-link" id="nav-form" onclick="showPage('form')">New Patient</button>
+    <button class="nav-link" id="nav-dashboard" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-link" id="nav-patients" onclick="showPage('patients')">Records</button>
+    <button class="nav-link" id="nav-report" onclick="showPage('report')">Reports</button>
+  </div>
+  <button class="nav-cta" onclick="showPage('form')">+ New Prediction</button>
+</nav>
+
+<!-- ═══════════════ HOME PAGE ═══════════════ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        AI-Powered Clinical Decision Support
+      </div>
+      <h1>Predict Disease Risk with <em>Intelligent</em> Precision</h1>
+      <p>Advanced symptom analysis, vitals assessment, and machine learning combine to deliver accurate disease predictions and actionable health insights.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showPage('form')">Start Patient Analysis</button>
+        <button class="btn-outline" onclick="showPage('dashboard')">View Dashboard</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><h3>98.2%</h3><p>Prediction Accuracy</p></div>
+        <div class="hero-stat"><h3>15+</h3><p>Disease Models</p></div>
+        <div class="hero-stat"><h3>10K+</h3><p>Patients Analyzed</p></div>
+        <div class="hero-stat"><h3>24/7</h3><p>Availability</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="text-align:center">
+    <h2 class="section-title">Clinical Intelligence Suite</h2>
+    <p class="section-sub">A comprehensive platform integrating AI diagnostics with modern healthcare workflows</p>
+    <div class="card-grid" style="text-align:left">
+      <div class="service-card"><div class="service-icon" style="background:#EBF5FF;color:#1565C0">🩺</div><h3>Disease Prediction</h3><p>AI-driven analysis of symptoms and vitals to predict likely conditions with confidence scores.</p></div>
+      <div class="service-card"><div class="service-icon" style="background:#E8F5E9;color:#2E7D32">📊</div><h3>Health Analytics</h3><p>Visual dashboards tracking blood pressure, sugar levels, and cardiac activity over time.</p></div>
+      <div class="service-card"><div class="service-icon" style="background:#E0F2F1;color:#00796B">📋</div><h3>Medical Reports</h3><p>Downloadable PDF reports combining patient data, predictions, and clinical insights.</p></div>
+      <div class="service-card"><div class="service-icon" style="background:#FFF3E0;color:#E65100">⚕️</div><h3>Risk Assessment</h3><p>Comprehensive risk stratification across cardiovascular, metabolic, and respiratory domains.</p></div>
+      <div class="service-card"><div class="service-icon" style="background:#F3E5F5;color:#6A1B9A">👤</div><h3>Patient Records</h3><p>Secure storage and retrieval of complete patient history with longitudinal tracking.</p></div>
+      <div class="service-card"><div class="service-icon" style="background:#FFEBEE;color:#C62828">🔬</div><h3>Diagnostic Insights</h3><p>Evidence-based precautionary recommendations tailored to individual patient profiles.</p></div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <div class="section" style="text-align:center">
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-sub">Three steps from patient data to clinical insight</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;text-align:left">
+      <div class="card"><div style="font-size:2rem;font-family:'DM Serif Display',serif;color:var(--sky);margin-bottom:12px">01</div><h3 style="font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:8px">Enter Patient Data</h3><p style="font-size:.875rem;color:var(--muted);line-height:1.65">Fill in patient demographics, vitals, symptoms, and medical history through our structured intake form.</p></div>
+      <div class="card"><div style="font-size:2rem;font-family:'DM Serif Display',serif;color:var(--sky);margin-bottom:12px">02</div><h3 style="font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:8px">AI Analysis</h3><p style="font-size:.875rem;color:var(--muted);line-height:1.65">Our model cross-references symptoms against 15+ disease patterns, incorporating vital signs and patient history.</p></div>
+      <div class="card"><div style="font-size:2rem;font-family:'DM Serif Display',serif;color:var(--sky);margin-bottom:12px">03</div><h3 style="font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:8px">Receive Report</h3><p style="font-size:.875rem;color:var(--muted);line-height:1.65">Get a detailed prediction with confidence scores, risk levels, precautions, and a downloadable medical report.</p></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>MediPredict AI</h4>
+        <p>An intelligent healthcare platform combining clinical expertise with machine learning to support medical decision-making.</p>
+        <p style="margin-top:16px;font-size:.8125rem">Not a substitute for professional medical advice.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="#">Disease Prediction</a><a href="#">Patient Records</a><a href="#">Analytics Dashboard</a><a href="#">Medical Reports</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a href="#">Documentation</a><a href="#">Help Center</a><a href="#">Privacy Policy</a><a href="#">Terms of Use</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>contact@medipredict.ai</p><p>+91-20-1234-5678</p><p>MG Road, Pune 411001</p><p>Mon–Sat 8am–6pm IST</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 MediPredict AI — All rights reserved</span>
+      <span>Built with HTML, CSS & JavaScript + Claude AI</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════ PATIENT FORM PAGE ═══════════════ -->
+<div class="page" id="page-form">
+  <div class="form-page">
+    <h1 class="page-title">Patient Assessment Form</h1>
+    <p style="color:var(--muted);margin-bottom:8px;font-size:.9375rem">Complete all sections for an accurate disease prediction.</p>
+
+    <!-- Basic Info -->
+    <div class="form-section-header"><div class="form-section-dot"></div>Basic Information</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Full Name <span class="req">*</span></label>
+        <input class="form-input" id="f-name" placeholder="e.g. Rohan Mehta" oninput="clearErr('f-name')"/>
+        <span class="form-error" id="err-f-name"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Age <span class="req">*</span></label>
+        <input type="number" class="form-input" id="f-age" placeholder="Years" min="1" max="120" oninput="clearErr('f-age')"/>
+        <span class="form-error" id="err-f-age"></span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Gender <span class="req">*</span></label>
+        <select class="form-select" id="f-gender" onchange="toggleWomens();clearErr('f-gender')">
+          <option value="">Select gender</option>
+          <option>Male</option><option>Female</option><option>Other</option>
+        </select>
+        <span class="form-error" id="err-f-gender"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Blood Group <span class="req">*</span></label>
+        <select class="form-select" id="f-blood" onchange="clearErr('f-blood')">
+          <option value="">Select blood group</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+        </select>
+        <span class="form-error" id="err-f-blood"></span>
+      </div>
+    </div>
+
+    <!-- Vitals -->
+    <div class="form-section-header"><div class="form-section-dot"></div>Vital Signs</div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label class="form-label">Blood Pressure (mmHg) <span class="req">*</span></label>
+        <input type="number" class="form-input" id="f-bp" placeholder="e.g. 120" oninput="clearErr('f-bp')"/>
+        <span class="form-error" id="err-f-bp"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Blood Sugar (mg/dL) <span class="req">*</span></label>
+        <input type="number" class="form-input" id="f-sugar" placeholder="e.g. 95" oninput="clearErr('f-sugar')"/>
+        <span class="form-error" id="err-f-sugar"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Heart Rate (bpm) <span class="req">*</span></label>
+        <input type="number" class="form-input" id="f-hr" placeholder="e.g. 72" oninput="clearErr('f-hr')"/>
+        <span class="form-error" id="err-f-hr"></span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Height (cm) <span class="req">*</span></label>
+        <input type="number" class="form-input" id="f-height" placeholder="e.g. 170" oninput="updateBMI();clearErr('f-height')"/>
+        <span class="form-error" id="err-f-height"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Weight (kg) <span class="req">*</span></label>
+        <input type="number" class="form-input" id="f-weight" placeholder="e.g. 68" oninput="updateBMI();clearErr('f-weight')"/>
+        <span class="form-error" id="err-f-weight"></span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">BMI (Auto-calculated)</label>
+      <div class="bmi-display" id="bmi-display">Enter height and weight</div>
+    </div>
+
+    <!-- Symptoms -->
+    <div class="form-section-header"><div class="form-section-dot"></div>Symptoms</div>
+    <div class="form-group">
+      <label class="form-label">Select all that apply</label>
+      <div class="symptoms-grid" id="symptoms-grid"></div>
+    </div>
+
+    <!-- Medical History -->
+    <div class="form-section-header"><div class="form-section-dot"></div>Medical History</div>
+    <div class="form-group">
+      <label class="form-label">Previous conditions, surgeries, medications</label>
+      <textarea class="form-textarea" id="f-history" placeholder="e.g. Diagnosed with hypertension in 2019, currently on amlodipine 5mg..."></textarea>
+    </div>
+
+    <!-- Women's Section -->
+    <div id="womens-section" style="display:none">
+      <div class="form-section-header" style="color:#880E4F">
+        <div class="form-section-dot" style="background:#E91E63"></div>
+        Women's Health (Additional)
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">Pregnancy Count</label>
+          <input type="number" class="form-input" id="f-preg" placeholder="Number" min="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Insulin Level (μU/mL)</label>
+          <input type="number" class="form-input" id="f-insulin" placeholder="e.g. 15"/>
+        </div>
+        <div class="form-group"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hormonal / Menstrual Details</label>
+        <textarea class="form-textarea" id="f-hormonal" placeholder="e.g. Irregular cycles, PCOS diagnosis, last period date, hormone therapy..."></textarea>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+      Run Disease Prediction →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ RESULT PAGE ═══════════════ -->
+<div class="page" id="page-result">
+  <div class="result-page">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+      <button class="back-link" onclick="showPage('form')" style="margin-bottom:0">← New Patient</button>
+      <span style="color:var(--border)">|</span>
+      <span style="font-size:.875rem;color:var(--muted)">Prediction Result</span>
+    </div>
+    <div id="result-content"></div>
+    <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap">
+      <button class="btn-primary" onclick="showPage('report')">Generate Medical Report →</button>
+      <button style="padding:12px 28px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:inherit" onclick="showPage('dashboard')">View Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DASHBOARD PAGE ═══════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="dash-page">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;flex-wrap:wrap;gap:16px">
+      <div>
+        <h1 class="page-title">Analytics Dashboard</h1>
+        <p id="dash-subtitle" style="color:var(--muted);font-size:.9375rem"></p>
+      </div>
+      <button class="btn-primary" onclick="showPage('form')">+ Add Patient</button>
+    </div>
+    <div class="kpi-grid" id="kpi-grid"></div>
+    <div id="dash-charts"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ RECORDS PAGE ═══════════════ -->
+<div class="page" id="page-patients">
+  <div class="dash-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:16px">
+      <div>
+        <h1 class="page-title">Patient Records</h1>
+        <p id="records-count" style="color:var(--muted);font-size:.9375rem"></p>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <input class="search-input" id="search-input" placeholder="Search by name or diagnosis..." oninput="renderRecords()"/>
+        <button class="btn-primary" onclick="showPage('form')">+ New Patient</button>
+      </div>
+    </div>
+    <div id="records-table"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ REPORT PAGE ═══════════════ -->
+<div class="page" id="page-report">
+  <div class="report-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 class="page-title">Medical Report</h1>
+        <p id="report-patient-name" style="color:var(--muted)"></p>
+      </div>
+      <div class="report-actions">
+        <button class="btn-primary" onclick="downloadReport()">⬇ Download PDF</button>
+        <button style="padding:12px 24px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:inherit" onclick="window.print()">🖨 Print</button>
+      </div>
+    </div>
+    <div id="report-content"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA & STATE
+// ═══════════════════════════════════════════════════════
+let currentPatient = null;
+let chartInstances = {};
+
+const SYMPTOMS = [
+  "Fever","Fatigue","Headache","Chest Pain","Shortness of Breath",
+  "Nausea","Vomiting","Diarrhea","Abdominal Pain","Back Pain",
+  "Joint Pain","Muscle Ache","Dizziness","Cough","Swelling",
+  "Blurred Vision","Excessive Thirst","Frequent Urination","Weight Loss","Skin Rash"
+];
+
+let selectedSymptoms = [];
+
+// ═══════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════
+function getPatients() {
+  try { return JSON.parse(localStorage.getItem("hms_patients") || "[]"); }
+  catch { return []; }
+}
+function savePatient(p) {
+  const all = getPatients();
+  const idx = all.findIndex(x => x.id === p.id);
+  if (idx >= 0) all[idx] = p; else all.push(p);
+  localStorage.setItem("hms_patients", JSON.stringify(all));
+}
+function genId() { return "P" + Date.now().toString(36).toUpperCase(); }
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) { page.classList.add('active'); page.classList.remove('fadeUp'); void page.offsetWidth; page.style.animation = 'none'; void page.offsetWidth; page.style.animation = ''; }
+  const navLink = document.getElementById('nav-' + id);
+  if (navLink) navLink.classList.add('active');
+
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'patients') renderRecords();
+  if (id === 'report') renderReport();
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════════════════
+// BMI
+// ═══════════════════════════════════════════════════════
+function calcBMI(w, h) {
+  const hm = parseFloat(h) / 100, wk = parseFloat(w);
+  if (!hm || !wk || hm <= 0) return null;
+  return (wk / (hm * hm)).toFixed(1);
+}
+function bmiCategory(b) {
+  b = parseFloat(b);
+  if (b < 18.5) return { label: "Underweight", cls: "badge-amber" };
+  if (b < 25)   return { label: "Normal", cls: "badge-green" };
+  if (b < 30)   return { label: "Overweight", cls: "badge-amber" };
+  return { label: "Obese", cls: "badge-red" };
+}
+function updateBMI() {
+  const h = document.getElementById('f-height').value;
+  const w = document.getElementById('f-weight').value;
+  const bmi = calcBMI(w, h);
+  const d = document.getElementById('bmi-display');
+  if (bmi) {
+    const cat = bmiCategory(bmi);
+    d.innerHTML = `${bmi} kg/m² <span class="badge ${cat.cls}" style="font-size:.7rem">${cat.label}</span>`;
+  } else {
+    d.textContent = 'Enter height and weight';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// SYMPTOMS GRID
+// ═══════════════════════════════════════════════════════
+function initSymptoms() {
+  const grid = document.getElementById('symptoms-grid');
+  grid.innerHTML = '';
+  selectedSymptoms = [];
+  SYMPTOMS.forEach(s => {
+    const chip = document.createElement('div');
+    chip.className = 'symptom-chip';
+    chip.dataset.symptom = s;
+    chip.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="chip-icon">
+        <rect width="13" height="13" x=".5" y=".5" rx="2.5" stroke="#DDE3EE"/>
+      </svg>${s}`;
+    chip.onclick = () => toggleSymptom(s, chip);
+    grid.appendChild(chip);
+  });
+}
+function toggleSymptom(s, chip) {
+  if (selectedSymptoms.includes(s)) {
+    selectedSymptoms = selectedSymptoms.filter(x => x !== s);
+    chip.classList.remove('selected');
+    chip.querySelector('.chip-icon').innerHTML = `<rect width="13" height="13" x=".5" y=".5" rx="2.5" stroke="#DDE3EE"/>`;
+  } else {
+    selectedSymptoms.push(s);
+    chip.classList.add('selected');
+    chip.querySelector('.chip-icon').innerHTML = `<rect width="14" height="14" rx="3" fill="#1E88E5"/><path d="M3 7l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>`;
+  }
+}
+function toggleWomens() {
+  const v = document.getElementById('f-gender').value;
+  document.getElementById('womens-section').style.display = v === 'Female' ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════════════════
+// VALIDATION
+// ═══════════════════════════════════════════════════════
+function clearErr(id) {
+  document.getElementById('err-' + id).textContent = '';
+  document.getElementById(id).classList.remove('error');
+}
+function setErr(id, msg) {
+  document.getElementById('err-' + id).textContent = msg;
+  document.getElementById(id).classList.add('error');
+}
+function validateForm() {
+  let ok = true;
+  const checks = [
+    ['f-name', v => !v.trim(), 'Required'],
+    ['f-age', v => !v || v < 1 || v > 120, 'Valid age (1-120) required'],
+    ['f-gender', v => !v, 'Required'],
+    ['f-blood', v => !v, 'Required'],
+    ['f-bp', v => !v, 'Required'],
+    ['f-sugar', v => !v, 'Required'],
+    ['f-hr', v => !v, 'Required'],
+    ['f-height', v => !v, 'Required'],
+    ['f-weight', v => !v, 'Required'],
+  ];
+  checks.forEach(([id, test, msg]) => {
+    const val = document.getElementById(id).value;
+    if (test(val)) { setErr(id, msg); ok = false; }
+  });
+  return ok;
+}
+
+// ═══════════════════════════════════════════════════════
+// RULE-BASED PREDICTION (fallback)
+// ═══════════════════════════════════════════════════════
+function rulePrediction(form) {
+  const bp = parseInt(form.bloodPressure) || 120;
+  const sugar = parseInt(form.sugarLevel) || 90;
+  const hr = parseInt(form.heartRate) || 72;
+  const bmi = parseFloat(form.bmi) || 22;
+  const syms = form.symptoms || [];
+  let diseases = [], risk = "Low", confidence = 60;
+
+  if (sugar > 200 || (syms.includes("Excessive Thirst") && syms.includes("Frequent Urination"))) {
+    diseases.push("Type 2 Diabetes"); confidence = 78; risk = "High";
+  }
+  if (bp > 140 || (syms.includes("Headache") && syms.includes("Chest Pain"))) {
+    diseases.push("Hypertension"); confidence = Math.max(confidence, 72); risk = "High";
+  }
+  if (syms.includes("Chest Pain") && syms.includes("Shortness of Breath") && hr > 100) {
+    diseases.push("Cardiovascular Disease"); confidence = Math.max(confidence, 81); risk = "High";
+  }
+  if (syms.includes("Cough") && syms.includes("Fever") && syms.includes("Fatigue")) {
+    diseases.push("Respiratory Infection"); confidence = Math.max(confidence, 70);
+    if (risk !== "High") risk = "Medium";
+  }
+  if (bmi > 30) {
+    diseases.push("Metabolic Syndrome"); confidence = Math.max(confidence, 65);
+    if (risk !== "High") risk = "Medium";
+  }
+  if (diseases.length === 0) {
+    diseases.push("No Significant Disease Detected"); confidence = 82; risk = "Low";
+  }
+  const precautions = risk === "High"
+    ? ["Consult a specialist immediately","Monitor vitals daily","Maintain a strict diet","Avoid strenuous activity","Take prescribed medications regularly"]
+    : risk === "Medium"
+    ? ["Schedule a doctor visit within a week","Monitor vitals bi-weekly","Follow a balanced diet","Exercise moderately","Reduce stress levels"]
+    : ["Continue healthy lifestyle","Annual health checkup recommended","Maintain current diet and exercise","Stay hydrated","Monitor any new symptoms"];
+  return {
+    disease: diseases.join(", "), confidence, risk, precautions,
+    analysis: `Based on the patient's vitals (BP: ${bp} mmHg, Sugar: ${sugar} mg/dL, HR: ${hr} bpm) and reported symptoms, the assessment indicates ${risk.toLowerCase()} risk. BMI of ${bmi} is ${bmiCategory(bmi).label.toLowerCase()}.`
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// AI PREDICTION
+// ═══════════════════════════════════════════════════════
+async function aiPredict(form) {
+  const prompt = `You are a clinical AI assistant. Analyze this patient profile and return ONLY valid JSON.
+
+Patient: ${form.name}, Age: ${form.age}, Gender: ${form.gender}, Blood Group: ${form.bloodGroup}
+Vitals: BP: ${form.bloodPressure} mmHg, Sugar: ${form.sugarLevel} mg/dL, HR: ${form.heartRate} bpm, BMI: ${form.bmi}
+Symptoms: ${(form.symptoms||[]).join(", ")||"None"}
+Medical History: ${form.medicalHistory||"None"}
+${form.gender==="Female"?`Pregnancies: ${form.pregnancyCount||0}, Insulin: ${form.insulinLevel||"N/A"}, Hormonal: ${form.hormonalDetails||"N/A"}`:""}
+
+Return ONLY this JSON (no markdown, no extra text):
+{"disease":"primary predicted condition(s)","confidence":0-100,"risk":"Low|Medium|High","precautions":["precaution 1","precaution 2","precaution 3","precaution 4","precaution 5"],"analysis":"2-sentence clinical summary"}`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content?.[0]?.text || "").replace(/```json|```/g,"").trim();
+    return JSON.parse(text);
+  } catch { return rulePrediction(form); }
+}
+
+// ═══════════════════════════════════════════════════════
+// FORM SUBMIT
+// ═══════════════════════════════════════════════════════
+async function submitForm() {
+  if (!validateForm()) return;
+  const bmi = calcBMI(
+    document.getElementById('f-weight').value,
+    document.getElementById('f-height').value
+  );
+  const gender = document.getElementById('f-gender').value;
+  const form = {
+    id: genId(),
+    date: new Date().toISOString(),
+    name: document.getElementById('f-name').value.trim(),
+    age: document.getElementById('f-age').value,
+    gender,
+    bloodGroup: document.getElementById('f-blood').value,
+    bloodPressure: document.getElementById('f-bp').value,
+    sugarLevel: document.getElementById('f-sugar').value,
+    heartRate: document.getElementById('f-hr').value,
+    height: document.getElementById('f-height').value,
+    weight: document.getElementById('f-weight').value,
+    bmi,
+    symptoms: [...selectedSymptoms],
+    medicalHistory: document.getElementById('f-history').value,
+    pregnancyCount: gender==="Female" ? document.getElementById('f-preg').value : "",
+    insulinLevel: gender==="Female" ? document.getElementById('f-insulin').value : "",
+    hormonalDetails: gender==="Female" ? document.getElementById('f-hormonal').value : "",
+  };
+
+  // Show loading
+  document.getElementById('loadingOverlay').classList.add('show');
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Analyzing with AI...`;
+
+  try {
+    const prediction = await aiPredict(form);
+    currentPatient = { ...form, prediction };
+    savePatient(currentPatient);
+    renderResult();
+    showPage('result');
+  } finally {
+    document.getElementById('loadingOverlay').classList.remove('show');
+    btn.disabled = false;
+    btn.innerHTML = 'Run Disease Prediction →';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER RESULT
+// ═══════════════════════════════════════════════════════
+function renderResult() {
+  if (!currentPatient) return;
+  const p = currentPatient, r = p.prediction;
+  const riskCls = `risk-${r.risk.toLowerCase()}`;
+  const confColor = r.risk==="High"?"#F87171":r.risk==="Medium"?"#FBBF24":"#4ADE80";
+
+  const vitals = [
+    ["Blood Pressure", p.bloodPressure+" mmHg", parseInt(p.bloodPressure)>140?"badge-red":parseInt(p.bloodPressure)>120?"badge-amber":"badge-green"],
+    ["Blood Sugar", p.sugarLevel+" mg/dL", parseInt(p.sugarLevel)>200?"badge-red":parseInt(p.sugarLevel)>140?"badge-amber":"badge-green"],
+    ["Heart Rate", p.heartRate+" bpm", (parseInt(p.heartRate)>100||parseInt(p.heartRate)<60)?"badge-amber":"badge-green"],
+    ["BMI", (p.bmi||"N/A")+" kg/m²", bmiCategory(p.bmi)?.cls||"badge-blue"],
+  ];
+
+  document.getElementById('result-content').innerHTML = `
+    <div class="result-header-card">
+      <div>
+        <p style="font-size:.8125rem;color:rgba(255,255,255,.6);margin-bottom:6px">Patient</p>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:1.625rem;margin-bottom:4px">${e(p.name)}</h2>
+        <p style="font-size:.875rem;color:rgba(255,255,255,.7)">${e(p.age)}y · ${e(p.gender)} · ${e(p.bloodGroup)}</p>
+      </div>
+      <div style="text-align:right">
+        <span class="risk-badge ${riskCls}">${r.risk} Risk</span>
+        <div style="margin-top:12px">
+          <p style="font-size:.75rem;color:rgba(255,255,255,.55);margin-bottom:6px">AI Confidence</p>
+          <div style="display:flex;align-items:center;gap:10px;justify-content:flex-end">
+            <div class="conf-bar-wrap">
+              <div class="conf-bar" style="width:${r.confidence}%;background:${confColor}"></div>
+            </div>
+            <span style="font-size:1.125rem;font-weight:600">${r.confidence}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <p class="result-section-title">Predicted Condition</p>
+      <h3 style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--navy);margin-bottom:12px">${e(r.disease)}</h3>
+      <p style="font-size:.9rem;color:var(--muted);line-height:1.7">${e(r.analysis)}</p>
+    </div>
+
+    <div class="result-grid">
+      <div class="card">
+        <p class="result-section-title">Patient Vitals</p>
+        ${vitals.map(([k,v,cls]) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:.875rem;color:var(--muted)">${k}</span>
+            <span class="badge ${cls}">${v}</span>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <p class="result-section-title">Recommended Precautions</p>
+        <ul class="precaution-list">
+          ${(r.precautions||[]).map(pr => `
+            <li class="precaution-item">
+              <div class="precaution-dot"></div>${e(pr)}
+            </li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    ${p.symptoms?.length ? `
+    <div class="card" style="margin-top:20px">
+      <p class="result-section-title">Reported Symptoms</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${p.symptoms.map(s => `<span class="badge badge-blue">${e(s)}</span>`).join('')}
+      </div>
+    </div>` : ''}
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDashboard() {
+  const patients = getPatients();
+  const last10 = patients.slice(-10);
+  const avgBP = patients.length ? Math.round(patients.reduce((s,p)=>s+(parseInt(p.bloodPressure)||0),0)/patients.length) : 0;
+  const avgSugar = patients.length ? Math.round(patients.reduce((s,p)=>s+(parseInt(p.sugarLevel)||0),0)/patients.length) : 0;
+  const avgHR = patients.length ? Math.round(patients.reduce((s,p)=>s+(parseInt(p.heartRate)||0),0)/patients.length) : 0;
+  const highRisk = patients.filter(p=>p.prediction?.risk==="High").length;
+
+  document.getElementById('dash-subtitle').textContent = `Population health overview across ${patients.length} patient records`;
+
+  // KPIs
+  document.getElementById('kpi-grid').innerHTML = [
+    ["Total Patients", patients.length, "Records in database"],
+    ["Avg Blood Pressure", avgBP?`${avgBP} mmHg`:"—", "Population average"],
+    ["Avg Blood Sugar", avgSugar?`${avgSugar} mg/dL`:"—", "Population average"],
+    ["High Risk Patients", highRisk, "Require immediate review"],
+  ].map(([l,v,s]) => `
+    <div class="kpi-card">
+      <p class="kpi-label">${l}</p>
+      <p class="kpi-val">${v}</p>
+      <p class="kpi-sub">${s}</p>
+    </div>`).join('');
+
+  const chartsDiv = document.getElementById('dash-charts');
+
+  if (!patients.length) {
+    chartsDiv.innerHTML = `
+      <div class="card empty-state">
+        <div class="empty-icon">📊</div>
+        <p style="font-size:1rem;font-weight:500;margin-bottom:8px">No patient data yet</p>
+        <p style="font-size:.875rem">Add patients to see analytics</p>
+        <button class="btn-primary" style="margin-top:20px" onclick="showPage('form')">Add First Patient</button>
+      </div>`;
+    return;
+  }
+
+  const labels = last10.map((p,i) => p.name?.split(" ")[0]||`P${i+1}`);
+  const bpData = last10.map(p => parseInt(p.bloodPressure)||0);
+  const sugarData = last10.map(p => parseInt(p.sugarLevel)||0);
+  const hrData = last10.map(p => parseInt(p.heartRate)||0);
+  const risks = {Low:0,Medium:0,High:0};
+  patients.forEach(p => { if(p.prediction?.risk) risks[p.prediction.risk]++; });
+
+  // Insights
+  const insights = [];
+  if (avgBP > 140) insights.push({text:"Average blood pressure is critically elevated — cardiovascular monitoring advised",color:"var(--red)",bg:"var(--red-l)"});
+  else if (avgBP > 120) insights.push({text:"Average blood pressure is mildly elevated — lifestyle modification recommended",color:"var(--amber)",bg:"var(--amber-l)"});
+  else insights.push({text:"Average blood pressure within normal range — cardiovascular activity appears stable",color:"var(--green)",bg:"var(--green-l)"});
+
+  if (avgSugar > 200) insights.push({text:"High average blood sugar detected — significant risk of diabetes mellitus",color:"var(--red)",bg:"var(--red-l)"});
+  else if (avgSugar > 140) insights.push({text:"Elevated blood sugar levels observed — pre-diabetic screening recommended",color:"var(--amber)",bg:"var(--amber-l)"});
+  else insights.push({text:"Blood glucose levels are within acceptable range across the patient cohort",color:"var(--green)",bg:"var(--green-l)"});
+  if (highRisk > 0) insights.push({text:`${highRisk} patient(s) classified as high risk — immediate clinical review required`,color:"var(--red)",bg:"var(--red-l)"});
+
+  chartsDiv.innerHTML = `
+    <div class="chart-grid" style="margin-bottom:20px">
+      <div class="chart-card"><p class="chart-title">Blood Pressure</p><p class="chart-sub">Systolic readings per patient (mmHg)</p><canvas id="ch-bp" height="200"></canvas></div>
+      <div class="chart-card"><p class="chart-title">Blood Sugar Levels</p><p class="chart-sub">Fasting glucose trend (mg/dL)</p><canvas id="ch-sugar" height="200"></canvas></div>
+      <div class="chart-card"><p class="chart-title">Heart Rate</p><p class="chart-sub">Resting heart rate per patient (bpm)</p><canvas id="ch-hr" height="200"></canvas></div>
+      <div class="chart-card"><p class="chart-title">Risk Distribution</p><p class="chart-sub">Patient risk level breakdown</p><div style="max-width:260px;margin:0 auto"><canvas id="ch-dist" height="220"></canvas></div></div>
+    </div>
+    <div class="card">
+      <p class="result-section-title" style="margin-bottom:16px">Clinical Insights</p>
+      <div class="insight-list">
+        ${insights.map(ins=>`
+          <div class="insight-item" style="background:${ins.bg}">
+            <div class="insight-dot" style="background:${ins.color}"></div>
+            <span style="color:${ins.color}">${ins.text}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  // Destroy old charts
+  Object.values(chartInstances).forEach(c => { try{c.destroy()}catch{} });
+  chartInstances = {};
+
+  const defaults = {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{color:"#EBF0F7"},ticks:{font:{size:11},color:"#5A6B7C"}},
+      y:{grid:{color:"#EBF0F7"},ticks:{font:{size:11},color:"#5A6B7C"}}
+    }
+  };
+
+  chartInstances.bp = new Chart(document.getElementById('ch-bp'),{
+    type:'bar',
+    data:{labels,datasets:[{data:bpData,
+      backgroundColor:bpData.map(v=>v>140?"#FFCDD2":v>120?"#FFF9C4":"#C8E6C9"),
+      borderColor:bpData.map(v=>v>140?"#C62828":v>120?"#F57F17":"#2E7D32"),
+      borderWidth:1.5,borderRadius:4}]},
+    options:{...defaults,plugins:{...defaults.plugins,tooltip:{callbacks:{label:ctx=>`${ctx.raw} mmHg`}}}}
+  });
+
+  chartInstances.sugar = new Chart(document.getElementById('ch-sugar'),{
+    type:'line',
+    data:{labels,datasets:[{data:sugarData,borderColor:"#1565C0",backgroundColor:"rgba(21,101,192,.08)",
+      borderWidth:2,fill:true,tension:.4,pointBackgroundColor:"#1565C0",pointRadius:4}]},
+    options:{...defaults,plugins:{...defaults.plugins,tooltip:{callbacks:{label:ctx=>`${ctx.raw} mg/dL`}}}}
+  });
+
+  chartInstances.hr = new Chart(document.getElementById('ch-hr'),{
+    type:'line',
+    data:{labels,datasets:[{data:hrData,borderColor:"#00796B",backgroundColor:"rgba(0,121,107,.08)",
+      borderWidth:2,fill:true,tension:.4,pointBackgroundColor:"#00796B",pointRadius:4}]},
+    options:{...defaults,plugins:{...defaults.plugins,tooltip:{callbacks:{label:ctx=>`${ctx.raw} bpm`}}}}
+  });
+
+  chartInstances.dist = new Chart(document.getElementById('ch-dist'),{
+    type:'doughnut',
+    data:{
+      labels:["Low Risk","Medium Risk","High Risk"],
+      datasets:[{data:[risks.Low,risks.Medium,risks.High],
+        backgroundColor:["#C8E6C9","#FFF9C4","#FFCDD2"],
+        borderColor:["#2E7D32","#F57F17","#C62828"],borderWidth:1.5}]
+    },
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{font:{size:11},color:"#5A6B7C"}}}}
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// RECORDS TABLE
+// ═══════════════════════════════════════════════════════
+function renderRecords() {
+  const patients = getPatients();
+  const q = (document.getElementById('search-input')?.value||"").toLowerCase();
+  document.getElementById('records-count').textContent = `${patients.length} records stored`;
+
+  const filtered = patients.filter(p =>
+    p.name?.toLowerCase().includes(q) ||
+    p.prediction?.disease?.toLowerCase().includes(q)
+  );
+
+  if (!filtered.length) {
+    document.getElementById('records-table').innerHTML = `
+      <div class="card empty-state">
+        <div class="empty-icon">👤</div>
+        <p style="font-size:1rem;font-weight:500;margin-bottom:8px">${q?"No matches found":"No patient records yet"}</p>
+        <button class="btn-primary" style="margin-top:16px" onclick="showPage('form')">Add First Patient</button>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('records-table').innerHTML = `
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>ID</th><th>Name</th><th>Age</th><th>Gender</th>
+          <th>BP (mmHg)</th><th>Sugar (mg/dL)</th><th>HR (bpm)</th>
+          <th>Diagnosis</th><th>Risk</th><th>Date</th><th>Action</th>
+        </tr></thead>
+        <tbody>
+          ${filtered.map(p => {
+            const bpC = parseInt(p.bloodPressure)>140?"badge-red":parseInt(p.bloodPressure)>120?"badge-amber":"badge-green";
+            const sgC = parseInt(p.sugarLevel)>200?"badge-red":parseInt(p.sugarLevel)>140?"badge-amber":"badge-green";
+            const rsk = p.prediction?.risk||"";
+            const dt = p.date ? new Date(p.date).toLocaleDateString("en-IN") : "—";
+            const dis = (p.prediction?.disease||"Pending").substring(0,30)+(p.prediction?.disease?.length>30?"...":"");
+            return `<tr>
+              <td style="font-weight:600;color:var(--sky)">${e(p.id)}</td>
+              <td style="font-weight:500">${e(p.name)}</td>
+              <td>${e(p.age)}</td><td>${e(p.gender)}</td>
+              <td><span class="badge ${bpC}">${p.bloodPressure}</span></td>
+              <td><span class="badge ${sgC}">${p.sugarLevel}</span></td>
+              <td>${p.heartRate}</td>
+              <td title="${e(p.prediction?.disease||'')}">${e(dis)}</td>
+              <td>${rsk?`<span class="badge risk-${rsk.toLowerCase()}">${rsk}</span>`:""}</td>
+              <td style="color:var(--muted);font-size:.8125rem">${dt}</td>
+              <td><button class="table-btn" onclick="viewPatient('${p.id}')">View</button></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function viewPatient(id) {
+  const p = getPatients().find(x => x.id === id);
+  if (!p) return;
+  currentPatient = p;
+  renderResult();
+  showPage('result');
+}
+
+// ═══════════════════════════════════════════════════════
+// REPORT
+// ═══════════════════════════════════════════════════════
+function renderReport() {
+  const el = document.getElementById('report-content');
+  if (!currentPatient) {
+    document.getElementById('report-patient-name').textContent = "";
+    el.innerHTML = `
+      <div class="card empty-state">
+        <div class="empty-icon">📋</div>
+        <p style="font-size:1rem;font-weight:500;margin-bottom:8px">No patient selected</p>
+        <p style="font-size:.875rem;margin-bottom:20px">Go to Patient Records and select a patient to generate a report</p>
+        <button class="btn-primary" onclick="showPage('patients')">View Records</button>
+      </div>`;
+    return;
+  }
+
+  const p = currentPatient, r = p.prediction;
+  document.getElementById('report-patient-name').textContent = `Patient: ${p.name}`;
+  const d = p.date ? new Date(p.date).toLocaleDateString("en-IN",{year:"numeric",month:"long",day:"numeric"}) : "—";
+  const riskCls = r ? `risk-${r.risk.toLowerCase()}` : "";
+
+  el.innerHTML = `
+    <div class="report-doc" id="report-doc-inner">
+      <div class="report-header">
+        <div>
+          <div class="report-logo"><span style="color:var(--sky)">Medi</span>Predict AI</div>
+          <p style="font-size:.8125rem;color:var(--muted);margin-top:4px">AI-Powered Disease Prediction System</p>
+          <p style="font-size:.75rem;color:var(--muted)">MG Road, Pune 411001 · contact@medipredict.ai</p>
+        </div>
+        <div class="report-meta">
+          <p style="font-weight:600;color:var(--navy)">MEDICAL REPORT</p>
+          <p>Report ID: RPT-${e(p.id)}</p>
+          <p>Date: ${d}</p>
+          <p>Status: <span style="color:var(--green);font-weight:500">Completed</span></p>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <p class="report-section-title">Patient Information</p>
+        <div class="report-row">
+          ${[["Full Name",p.name],["Patient ID",p.id],["Age",p.age+" years"],["Gender",p.gender],["Blood Group",p.bloodGroup],["Date of Assessment",d]].map(([l,v])=>`
+            <div><p class="report-field-label">${l}</p><p class="report-field-val">${e(v||"—")}</p></div>`).join('')}
+        </div>
+      </div>
+
+      <div class="report-section">
+        <p class="report-section-title">Vital Signs</p>
+        <div class="report-row">
+          ${[["Blood Pressure",p.bloodPressure+" mmHg"],["Blood Sugar",p.sugarLevel+" mg/dL"],["Heart Rate",p.heartRate+" bpm"],["BMI",(p.bmi||"N/A")+" kg/m²"],["Height",p.height+" cm"],["Weight",p.weight+" kg"]].map(([l,v])=>`
+            <div><p class="report-field-label">${l}</p><p class="report-field-val">${e(v||"—")}</p></div>`).join('')}
+        </div>
+      </div>
+
+      ${p.symptoms?.length?`
+      <div class="report-section">
+        <p class="report-section-title">Reported Symptoms</p>
+        <p style="font-size:.875rem;line-height:1.8">${e(p.symptoms.join(" · "))}</p>
+      </div>`:""}
+
+      ${p.medicalHistory?`
+      <div class="report-section">
+        <p class="report-section-title">Medical History</p>
+        <p style="font-size:.875rem;line-height:1.8">${e(p.medicalHistory)}</p>
+      </div>`:""}
+
+      ${p.gender==="Female"&&(p.pregnancyCount||p.insulinLevel||p.hormonalDetails)?`
+      <div class="report-section">
+        <p class="report-section-title">Women's Health Data</p>
+        <div class="report-row">
+          ${p.pregnancyCount?`<div><p class="report-field-label">Pregnancy Count</p><p class="report-field-val">${e(p.pregnancyCount)}</p></div>`:""}
+          ${p.insulinLevel?`<div><p class="report-field-label">Insulin Level</p><p class="report-field-val">${e(p.insulinLevel)} μU/mL</p></div>`:""}
+          ${p.hormonalDetails?`<div style="grid-column:1/-1"><p class="report-field-label">Hormonal Details</p><p class="report-field-val">${e(p.hormonalDetails)}</p></div>`:""}
+        </div>
+      </div>`:""}
+
+      ${r?`
+      <div class="report-section">
+        <p class="report-section-title">AI Prediction Results</p>
+        <div class="report-result-box">
+          <div><p style="font-size:.75rem;color:rgba(255,255,255,.6);margin-bottom:4px">Primary Diagnosis</p>
+            <p style="font-size:1.25rem;font-weight:600">${e(r.disease)}</p></div>
+          <div style="text-align:right"><p style="font-size:.75rem;color:rgba(255,255,255,.6);margin-bottom:4px">AI Confidence</p>
+            <p style="font-size:1.5rem;font-weight:700">${r.confidence}%</p></div>
+          <div style="width:100%"><p style="font-size:.75rem;color:rgba(255,255,255,.6);margin-bottom:4px">Risk Level</p>
+            <span class="risk-badge ${riskCls}">${r.risk} Risk</span></div>
+        </div>
+        <div style="margin-top:20px">
+          <p style="font-size:.8125rem;font-weight:600;color:var(--navy);margin-bottom:10px">Clinical Analysis</p>
+          <p style="font-size:.875rem;line-height:1.75">${e(r.analysis)}</p>
+        </div>
+        <div style="margin-top:20px">
+          <p style="font-size:.8125rem;font-weight:600;color:var(--navy);margin-bottom:10px">Recommended Precautions</p>
+          ${(r.precautions||[]).map(pr=>`<p style="font-size:.875rem;line-height:1.75;display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--teal)">✓</span> ${e(pr)}</p>`).join('')}
+        </div>
+      </div>`:""}
+
+      <div class="report-footer">
+        <p><strong>Disclaimer:</strong> This report is generated by an AI-powered system and is for informational purposes only.</p>
+        <p>It does not constitute medical advice. Please consult a qualified healthcare professional for diagnosis and treatment.</p>
+        <p style="margin-top:8px">© 2025 MediPredict AI · Report ID: RPT-${e(p.id)}</p>
+      </div>
+    </div>`;
+}
+
+function downloadReport() {
+  const doc = document.getElementById('report-doc-inner');
+  if (!doc) return;
+  const win = window.open("","_blank");
+  win.document.write(`<!DOCTYPE html><html><head>
+    <title>Medical Report - ${currentPatient?.name||""}</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      :root{--navy:#0B2A4A;--blue:#1565C0;--sky:#1E88E5;--teal:#00796B;--green:#2E7D32;--green-l:#E8F5E9;--red:#C62828;--red-l:#FFEBEE;--amber:#F57F17;--amber-l:#FFFDE7;--border:#DDE3EE;--text:#1A2B3C;--muted:#5A6B7C}
+      body{font-family:'DM Sans',Arial,sans-serif;color:#1A2B3C;padding:40px;line-height:1.6}
+      .report-header{display:flex;justify-content:space-between;padding-bottom:24px;border-bottom:2px solid #0B2A4A;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+      .report-logo{font-family:'DM Serif Display',Georgia,serif;font-size:1.5rem;color:#0B2A4A}
+      .report-section{margin-bottom:28px}
+      .report-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#1E88E5;padding-bottom:8px;border-bottom:1px solid #DDE3EE;margin-bottom:14px}
+      .report-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+      .report-field-label{font-size:12px;color:#5A6B7C;font-weight:500;margin-bottom:2px}
+      .report-field-val{font-size:13px}
+      .report-result-box{background:#0B2A4A;color:white;border-radius:8px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+      .risk-badge{padding:6px 16px;border-radius:100px;font-weight:600;font-size:13px}
+      .risk-low{background:#E8F5E9;color:#2E7D32}.risk-medium{background:#FFFDE7;color:#F57F17}.risk-high{background:#FFEBEE;color:#C62828}
+      .report-footer{margin-top:40px;padding-top:16px;border-top:1px solid #DDE3EE;font-size:11px;color:#5A6B7C;text-align:center;line-height:1.8}
+      .report-meta{text-align:right;font-size:12px;color:#5A6B7C}
+    </style></head><body>${doc.outerHTML}</body></html>`);
+  win.document.close();
+  setTimeout(()=>win.print(),500);
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function e(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  initSymptoms();
+  // pre-load last patient for report
+  const all = getPatients();
+  if (all.length) currentPatient = all[all.length-1];
+});
+</script>
+</body>
+</html>
