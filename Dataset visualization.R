@@ -1,10 +1,3 @@
-
-packages <- c("corrplot", "caret",
-              "randomForest", "rpart", "rpart.plot", "pROC", "e1071")
-
-installed <- packages %in% rownames(installed.packages())
-if (any(!installed)) install.packages(packages[!installed])
-
 library(tidyverse)
 library(ggplot2)
 library(corrplot)
